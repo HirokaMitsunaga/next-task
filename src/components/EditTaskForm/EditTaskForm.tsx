@@ -1,12 +1,47 @@
-const EditTaskForm = () => {
+"use client";
+import { FormState, updateTask } from "@/actions/task";
+import { TaskDocument } from "@/models/task";
+import { useState } from "react";
+import { useFormState, useFormStatus } from "react-dom";
+
+interface EditTaskFormProps {
+  task: TaskDocument;
+}
+
+const EditTaskForm: React.FC<EditTaskFormProps> = ({ task }) => {
+  const [title, setTitle] = useState(task.title);
+  const [description, setDescription] = useState(task.description);
+  const [dueDate, setDueDate] = useState(task.dueDate);
+  const [isCompleted, setIsCompleted] = useState(task.isCompleted);
+
+  //bindが何やってんのかよくわからん
+  const updateTaskWithId = updateTask.bind(null, task._id);
+  const initialState: FormState = { error: "" };
+  const [state, formAction] = useFormState(updateTaskWithId, initialState);
+
+  const SubmitButton = () => {
+    const { pending } = useFormStatus();
+    return (
+      <button
+        type="submit"
+        disabled={pending}
+        className="mt-8 py-2 w-full rounded-md text-white
+    bg-gray-800 hover:bg-gray-700 text-sm font-semibold shadow-sm disabled:bg-gray-400"
+      >
+        Edit
+      </button>
+    );
+  };
   return (
     <div className="mt-10 mx-auto w-full max-w-sm">
-      <form action="">
+      <form action={formAction}>
         <div>
           <label htmlFor="title" className="block text-sm font-medium">
             タイトル
           </label>
           <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
             type="text"
             id="title"
             name="title"
@@ -20,6 +55,8 @@ const EditTaskForm = () => {
             説明
           </label>
           <input
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
             type="text"
             id="description"
             name="description"
@@ -33,6 +70,8 @@ const EditTaskForm = () => {
             期限
           </label>
           <input
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
             type="date"
             id="dueDate"
             name="dueDate"
@@ -45,6 +84,8 @@ const EditTaskForm = () => {
         </div>
         <div className="mt-6 flex items-center">
           <input
+            checked={isCompleted}
+            onChange={(e) => setIsCompleted(e.target.checked)}
             type="checkbox"
             id="isCompleted"
             name="isCompleted"
@@ -54,13 +95,8 @@ const EditTaskForm = () => {
             タスクを完了にする
           </label>
         </div>
-        <button
-          type="submit"
-          className="mt-8 py-2 w-full rounded-md text-white 
-        bg-gray-800 hover:bg-gray-700 text-sm font-semibold shadow-sm"
-        >
-          Edit
-        </button>
+        <SubmitButton />
+        {state.error !== "" && <p className="mt-2 text-red-500 text-sm"></p>}
       </form>
     </div>
   );
