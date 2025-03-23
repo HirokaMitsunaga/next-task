@@ -12,8 +12,8 @@ export interface FormState {
 export const createTask = async (state: FormState, formDate: FormData) => {
   const newTask: Task = {
     title: formDate.get("title") as string,
-    description: formDate.get("title") as string,
-    dueDate: formDate.get("title") as string,
+    description: formDate.get("description") as string,
+    dueDate: formDate.get("dueDate") as string,
     isCompleted: false,
   };
   try {
@@ -21,6 +21,28 @@ export const createTask = async (state: FormState, formDate: FormData) => {
     await TaskModel.create(newTask);
   } catch (error) {
     state.error = "タスクの作成に失敗しました";
+    return state;
+  }
+
+  redirect("/");
+};
+
+export const updateTask = async (
+  id: string,
+  state: FormState,
+  formDate: FormData
+) => {
+  const updateTask: Task = {
+    title: formDate.get("title") as string,
+    description: formDate.get("description") as string,
+    dueDate: formDate.get("dueDate") as string,
+    isCompleted: Boolean(formDate.get("isCompleted")),
+  };
+  try {
+    await connectDb();
+    await TaskModel.updateOne({ _id: id }, updateTask);
+  } catch (error) {
+    state.error = "タスクの更新に失敗しました";
     return state;
   }
 
